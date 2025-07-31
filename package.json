@@ -1,0 +1,11 @@
+{
+  "name": "geomemo-app",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && node app.js",
+    "client": "cd frontend/geomemo_frontend && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  }
+}
