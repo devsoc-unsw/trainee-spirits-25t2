@@ -1,5 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import { useEffect, useState } from "react";
+import About from "./pages/About";
+import Login from "./pages/Login";
+import AppLayout from "./pages/applayout";
 
 function Home() {
   const [memos, setMemos] = useState([]);
@@ -37,13 +40,6 @@ function Home() {
   );
 }
 
-function About() {
-  return <p>About</p>;
-}
-function Login() {
-  return <p>Login</p>;
-}
-
 function NotFound() {
   return <p>Not Found</p>;
 }
@@ -53,6 +49,7 @@ function App() {
     <div>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/app" element={<AppLayout />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="*" element={<NotFound />} />
