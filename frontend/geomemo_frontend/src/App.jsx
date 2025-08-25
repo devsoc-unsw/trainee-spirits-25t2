@@ -1,45 +1,64 @@
-import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
 
-function App() {
-  const [count, setCount] = useState(0);
-  const [message, setMessage] = useState('');
+function Home() {
+  const [memos, setMemos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:3000/')
-      .then(res => res.json())
-      .then(data => setMessage(data.message));
+    fetch("http://localhost:3000/memos")
+      .then((res) => res.json())
+      .then((data) => setMemos(Array.isArray(data) ? data : []))
+      .catch((err) => setError(err?.message || "Failed to load memos"))
+      .finally(() => setLoading(false));
   }, []);
 
-  console.log(message);
+  if (loading) return <p>Loading memos...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-          <h1 class="text-3xl font-bold underline">    Hello Spirits! This is the frontend calling!  </h1>
-          <div className="p-8 text-2xl text-blue-600 font-bold">
-            {message || 'Loading...'}
-          </div>
-    </>
-  )
+    <div>
+      <h2>Memos</h2>
+      {memos.length === 0 ? (
+        <p>No memos found.</p>
+      ) : (
+        <ul>
+          {memos.map((m, idx) => (
+            <li key={m._id || m.id || idx}>
+              {(m.title || "(no title)") + " — "}
+              {(m.city || "?") + ", " + (m.country || "?")}
+            </li>
+          ))}
+        </ul>
+      )}
+      <pre style={{ marginTop: 12 }}>{JSON.stringify(memos, null, 2)}</pre>
+    </div>
+  );
 }
 
-export default App
+function About() {
+  return <p>About</p>;
+}
+function Login() {
+  return <p>Login</p>;
+}
+
+function NotFound() {
+  return <p>Not Found</p>;
+}
+
+function App() {
+  return (
+    <div>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
+  );
+}
+
+export default App;
