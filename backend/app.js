@@ -34,6 +34,8 @@ const Memo = require("./models/Memo");
  * @openapi
  * /users:
  *   post:
+ *     tags:
+ *       - Users
  *     summary: Create a new user
  *     description: Add a new user to the database
  *     requestBody:
@@ -73,6 +75,8 @@ app.post("/users", async (req, res) => {
  * @openapi
  * /users:
  *   get:
+ *     tags:
+ *       - Users
  *     summary: Get all users
  *     description: Retrieve a list of all users
  *     responses:
@@ -92,6 +96,8 @@ app.get("/users", async (req, res) => {
  * @openapi
  * /memos:
  *   post:
+ *     tags:
+ *       - Memos
  *     summary: Create a new memo
  *     description: Add a new travel memo with location, notes, and photos
  *     requestBody:
@@ -147,6 +153,8 @@ app.post("/memos", async (req, res) => {
  * @openapi
  * /memos:
  *   get:
+ *     tags:
+ *       - Memos
  *     summary: Get all memos
  *     description: Retrieve a list of all travel memos, with user info populated
  *     responses:
@@ -156,4 +164,99 @@ app.post("/memos", async (req, res) => {
 app.get("/memos", async (req, res) => {
   const memos = await Memo.find().populate("user");
   res.json(memos);
+});
+
+/**
+ * @openapi
+ * /memos/{id}:
+ *   delete:
+ *     tags:
+ *       - Memos
+ *     summary: Delete a memo
+ *     description: Delete a travel memo by its ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the memo to delete
+ *         example: "66f123abc456def789012345"
+ *     responses:
+ *       200:
+ *         description: Memo deleted successfully
+ *       404:
+ *         description: Memo not found
+ */
+app.delete("/memos/:id", async (req, res) => {
+  try {
+    const memo = await Memo.findByIdAndDelete(req.params.id);
+    if (!memo) {
+      return res.status(404).json({ error: "Memo not found" });
+    }
+    res.json({ message: "Memo deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * @openapi
+ * /memos/{id}:
+ *   put:
+ *     tags:
+ *       - Memos
+ *     summary: Update a memo
+ *     description: Update the details of an existing memo by its ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the memo to update
+ *         example: "66f123abc456def789012345"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               country:
+ *                 type: string
+ *                 example: "Japan"
+ *               city:
+ *                 type: string
+ *                 example: "Kyoto"
+ *               title:
+ *                 type: string
+ *                 example: "Kiyomizu-dera"
+ *               notes:
+ *                 type: string
+ *                 example: "Amazing temple view!"
+ *               photos:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["https://cdn.mymemo.com/kyoto.jpg"]
+ *     responses:
+ *       200:
+ *         description: Memo updated successfully
+ *       404:
+ *         description: Memo not found
+ */
+app.put("/memos/:id", async (req, res) => {
+  try {
+    const memo = await Memo.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!memo) {
+      return res.status(404).json({ error: "Memo not found" });
+    }
+    res.json(memo);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
