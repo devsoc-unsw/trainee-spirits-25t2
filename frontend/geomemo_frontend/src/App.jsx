@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { useEffect, useState } from "react";
 import About from "./pages/About";
 import Login from "./pages/Login";
-import AppLayout from "./pages/applayout";
+import AppLayout from "./pages/AppLayout";
 
 function Home() {
   const [memos, setMemos] = useState([]);
