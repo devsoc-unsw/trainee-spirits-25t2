@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import About from "./pages/About";
 import Login from "./pages/Login";
 import AppLayout from "./pages/AppLayout";
+import Navbar from "./components/Navbar";
 
 function Home() {
   const [memos, setMemos] = useState([]);
@@ -22,6 +23,8 @@ function Home() {
 
   return (
     <div>
+      <Navbar />
+
       <h2>Memos</h2>
       {memos.length === 0 ? (
         <p>No memos found.</p>

@@ -1,10 +1,10 @@
-import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
 import Map from "../components/Map";
 
 export default function applayout() {
   return (
     <div>
-      <Sidebar />
+      <Navbar />
       <Map />
     </div>
   );
