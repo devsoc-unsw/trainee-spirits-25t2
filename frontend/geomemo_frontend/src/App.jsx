@@ -4,6 +4,7 @@ import About from "./pages/About";
 import Login from "./pages/Login";
 import AppLayout from "./pages/AppLayout";
 import Navbar from "./components/Navbar";
+import './App.css';
 
 function Home() {
   const [memos, setMemos] = useState([]);
