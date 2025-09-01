@@ -24,8 +24,6 @@ function Home() {
 
   return (
     <div>
-      <Navbar />
-
       <h2>Memos</h2>
       {memos.length === 0 ? (
         <p>No memos found.</p>
@@ -51,6 +49,8 @@ function NotFound() {
 function App() {
   return (
     <div>
+      <Navbar />
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/app" element={<AppLayout />} />
