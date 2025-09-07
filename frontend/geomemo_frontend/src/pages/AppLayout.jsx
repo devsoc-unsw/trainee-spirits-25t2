@@ -1,11 +1,11 @@
-import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
 import Map from "../components/Map";
 
 export default function applayout() {
   return (
-    <div>
-      <Navbar />
-      <Map />
+    <div className="flex">
+      <Sidebar/>
+      <Map/>
     </div>
   );
 }
