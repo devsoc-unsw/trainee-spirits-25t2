@@ -1,159 +1,65 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
+const session = require("express-session");
 const connectDB = require("./db");
-
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./swagger");
 
+// Routers
+const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/users");
+const memoRoutes = require("./routes/memos");
+
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-const dotenv = require("dotenv");
-dotenv.config();
-
+// Connect to MongoDB
 connectDB();
 
-app.use(cors());
+// Parse JSON request bodies
 app.use(express.json());
 
-// Swagger UI
+// CORS
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL, // e.g. http://localhost:5173
+    credentials: true,
+  })
+);
+
+// Sessions (cookie-based)
+app.use(
+  session({
+    name: "connect.sid",
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    },
+  })
+);
+
+// Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.get("/", (req, res) => {
-  res.json({ message: "Hello Spirits! This is the Backend calling!" });
+// Routes
+app.use("/auth", authRoutes); // /auth/register, /auth/login, /auth/me, /auth/logout
+app.use("/users", userRoutes);
+app.use("/memos", memoRoutes);
+
+// Health check
+app.get("/", (_req, res) => {
+  res.json({ message: "Hello Spirits! Backend is up." });
 });
 
 app.listen(port, () => {
   console.log(`🚀 Server listening at http://localhost:${port}`);
 });
 
-const User = require("./models/User");
-const Memo = require("./models/Memo");
-
-/**
- * @openapi
- * /users:
- *   post:
- *     summary: Create a new user
- *     description: Add a new user to the database
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               googleId:
- *                 type: string
- *                 example: "1234567890"
- *               name:
- *                 type: string
- *                 example: "Alice"
- *               email:
- *                 type: string
- *                 example: "alice@example.com"
- *               avatar:
- *                 type: string
- *                 example: "https://example.com/avatar.png"
- *     responses:
- *       200:
- *         description: User created successfully
- */
-app.post("/users", async (req, res) => {
-  try {
-    const user = new User(req.body);
-    await user.save();
-    res.json(user);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-/**
- * @openapi
- * /users:
- *   get:
- *     summary: Get all users
- *     description: Retrieve a list of all users
- *     responses:
- *       200:
- *         description: A list of users
- */
-app.get("/users", async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-/**
- * @openapi
- * /memos:
- *   post:
- *     summary: Create a new memo
- *     description: Add a new travel memo with location, notes, and photos
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               user:
- *                 type: string
- *                 example: "66f123abc456def789012345"
- *               location:
- *                 type: object
- *                 properties:
- *                   coordinates:
- *                     type: array
- *                     items:
- *                       type: number
- *                     example: [139.6917, 35.6895]
- *               country:
- *                 type: string
- *                 example: "Japan"
- *               city:
- *                 type: string
- *                 example: "Tokyo"
- *               title:
- *                 type: string
- *                 example: "Tokyo Tower"
- *               notes:
- *                 type: string
- *                 example: "Beautiful night view!"
- *               photos:
- *                 type: array
- *                 items:
- *                   type: string
- *                 example: ["https://cdn.mymemo.com/tokyo.jpg"]
- *     responses:
- *       200:
- *         description: Memo created successfully
- */
-app.post("/memos", async (req, res) => {
-  try {
-    const memo = new Memo(req.body);
-    await memo.save();
-    res.json(memo);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-/**
- * @openapi
- * /memos:
- *   get:
- *     summary: Get all memos
- *     description: Retrieve a list of all travel memos, with user info populated
- *     responses:
- *       200:
- *         description: A list of memos
- */
-app.get("/memos", async (req, res) => {
-  const memos = await Memo.find().populate("user");
-  res.json(memos);
-});
+module.exports = app;

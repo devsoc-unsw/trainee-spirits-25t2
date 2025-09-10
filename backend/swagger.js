@@ -1,3 +1,5 @@
+// backend/swagger.js
+const path = require("path");
 const swaggerJsdoc = require("swagger-jsdoc");
 
 const options = {
@@ -8,9 +10,15 @@ const options = {
       version: "1.0.0",
       description: "API documentation for Travel Memo project",
     },
-    servers: [{ url: "http://localhost:3000" }],
+    servers: [
+      { url: process.env.SWAGGER_SERVER_URL || "http://localhost:3000" },
+    ],
   },
-  apis: ["./app.js", "./models/*.js"],
+  apis: [
+    path.join(__dirname, "routes/*.js"),
+    path.join(__dirname, "models/*.js"),
+  ],
 };
 
-module.exports = swaggerJsdoc(options);
+const swaggerSpec = swaggerJsdoc(options);
+module.exports = swaggerSpec;
