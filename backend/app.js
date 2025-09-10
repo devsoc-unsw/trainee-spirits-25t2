@@ -8,7 +8,7 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./swagger");
 
 // Routers
-const authRoutes = require("./routes/auth"); // ← 将被重写为本地账号版
+const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
 const memoRoutes = require("./routes/memos");
 
