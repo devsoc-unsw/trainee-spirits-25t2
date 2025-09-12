@@ -3,12 +3,16 @@ const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema(
   {
-    googleId: { type: String, required: true, unique: true },
-    name: String,
-    email: { type: String, unique: true },
-    avatar: String,
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    // Make googleId optional since we support both OAuth and password auth
+    googleId: { type: String, sparse: true },
+    // Add passwordHash for email/password auth
+    passwordHash: { type: String },
+    avatar: { type: String, sparse: true, unique: true },
   },
   { timestamps: true }
 );
+
 
 module.exports = mongoose.model("User", UserSchema);

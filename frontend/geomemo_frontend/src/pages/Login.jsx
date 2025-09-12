@@ -8,14 +8,37 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Login attempt:', { email, password });
     // Add your login logic here
     
-  };
+    try {
+      const response = await fetch('http://localhost:3000/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Important for cookie-based sessions
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (response.ok && data.ok) {
+        console.log('Login successful:', data);
+        alert("Login successful!");
+        // TODO: Save user info, redirect, etc.
+      } else {
+        alert(data.error || "Login failed");
+        console.error('Login failed:', data.error);
+    }
+  } catch (error) {
+      console.error('Error during login:', error);
+      alert("An error occurred. Please try again.");
+  }
+};
   return (
-    <div className="min-h-screen bg-white-50 flex items-center justify-center px-6">
+    <div className="min-h-screen bg-amber-50 flex items-center justify-center px-6">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -98,7 +121,7 @@ export default function Login() {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Don't have an account?{' '}
-              <a href="#" className="text-amber-600 hover:text-amber-700 font-medium">
+              <a href="/register" className="text-amber-600 hover:text-amber-700 font-medium">
                 Sign up
               </a>
             </p>

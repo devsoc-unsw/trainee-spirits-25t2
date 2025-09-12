@@ -15,19 +15,24 @@ const memoRoutes = require("./routes/memos");
 const app = express();
 const port = process.env.PORT || 3000;
 
+// CORS
+const allowedOrigins = process.env.CLIENT_URL.split(",");
+app.use(
+  cors({
+    origin: allowedOrigins, // e.g. http://localhost:5173
+    credentials: true,
+  })
+);
+
+console.log("CORS origin:", process.env.CLIENT_URL);
+
+
 // Connect to MongoDB
 connectDB();
 
 // Parse JSON request bodies
 app.use(express.json());
 
-// CORS
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL, // e.g. http://localhost:5173
-    credentials: true,
-  })
-);
 
 // Sessions (cookie-based)
 app.use(
