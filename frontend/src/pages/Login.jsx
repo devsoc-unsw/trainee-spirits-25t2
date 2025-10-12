@@ -2,7 +2,7 @@ import { FaMapPin, FaUser, FaLock, FaEye } from "react-icons/fa";
 import { IoMdEyeOff } from "react-icons/io";
 import { CiMail } from "react-icons/ci";
 import OAuth from "../components/OAuth";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 

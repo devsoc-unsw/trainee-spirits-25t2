@@ -6,13 +6,9 @@ const UserSchema = new mongoose.Schema(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     // Make googleId optional since we support both OAuth and password auth
-    googleId: { type: String, sparse: true },
-    // Add passwordHash for email/password auth
-    passwordHash: { type: String },
     avatar: { type: String, sparse: true, unique: true },
   },
   { timestamps: true }
 );
-
 
 module.exports = mongoose.model("User", UserSchema);

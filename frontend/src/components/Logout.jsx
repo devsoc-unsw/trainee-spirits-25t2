@@ -8,9 +8,9 @@ const Logout = () => {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth); // Firebase 清除 session
+      await signOut(auth); 
       console.log("✅ Logged out successfully");
-      navigate("/login"); // 登出后回登录页
+      navigate("/login"); 
     } catch (error) {
       console.error("❌ Logout error:", error);
     }

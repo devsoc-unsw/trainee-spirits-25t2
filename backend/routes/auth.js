@@ -1,146 +1,114 @@
-// backend/routes/auth.js
 const express = require("express");
-const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
 const router = express.Router();
 
-// helper: pick safe fields to return
-const pickUser = (u) =>
-  u ? { _id: u._id, name: u.name, email: u.email, avatar: u.avatar } : null;
-
 /**
  * @openapi
- * /auth/register:
+ * /auth/google:
  *   post:
- *     summary: Register with email & password
+ *     summary: Login or register user via Google OAuth
+ *     description: >
+ *       This endpoint handles user authentication using Google OAuth.
+ *       The frontend sends user information (name, email, avatar) obtained from Firebase Google sign-in.
+ *       If the user does not exist in the database, a new user record will be created automatically.
+ *     tags:
+ *       - Authentication
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, email, password]
+ *             required:
+ *               - email
  *             properties:
- *               name: { type: string, example: "Alice" }
- *               email: { type: string, example: "alice@example.com" }
- *               password: { type: string, example: "secret123" }
+ *               name:
+ *                 type: string
+ *                 example: "Johnny Zhou"
+ *               email:
+ *                 type: string
+ *                 example: "johnny@gmail.com"
+ *               avatar:
+ *                 type: string
+ *                 example: "https://lh3.googleusercontent.com/a/abc123"
  *     responses:
- *       200: { description: Registered successfully }
- *       409: { description: Email already exists }
+ *       200:
+ *         description: Login successful, returning user data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Login successful"
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: "66f3440b57fbbd00122aab90"
+ *                     name:
+ *                       type: string
+ *                       example: "Johnny Zhou"
+ *                     email:
+ *                       type: string
+ *                       example: "johnny@gmail.com"
+ *                     avatar:
+ *                       type: string
+ *                       example: "https://lh3.googleusercontent.com/a/abc123"
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Missing email field in request body
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Email is required"
+ *       500:
+ *         description: Server error while processing login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Server error"
  */
-router.post("/register", async (req, res) => {
+router.post("/google", async (req, res) => {
   try {
-    const { name, email, password } = req.body || {};
-    if (!name || !email || !password) {
-      return res
-        .status(400)
-        .json({ error: "name, email and password are required" });
-    }
-    if (password.length < 6) {
-      return res
-        .status(400)
-        .json({ error: "Password must be at least 6 characters" });
+    // Extract user info from request body
+    const { name, email, avatar } = req.body;
+
+    // Email is required (Google always returns it)
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
     }
 
-    const existed = await User.findOne({ email });
-    if (existed) {
-      return res.status(409).json({ error: "Email already registered" });
+    // Find existing user by email
+    let user = await User.findOne({ email });
+
+    // If not found, create a new one
+    if (!user) {
+      user = new User({ name, email, avatar });
+      await user.save();
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, passwordHash });
-
-    // auto login after register (optional)
-    req.session.userId = user._id.toString();
-
-    return res.json({ ok: true, user: pickUser(user) });
-  } catch (err) {
-    console.error("Register error:", err);
-    return res.status(500).json({ error: "Server error" });
-  }
-});
-
-/**
- * @openapi
- * /auth/login:
- *   post:
- *     summary: Login with email & password (session-based)
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [email, password]
- *             properties:
- *               email: { type: string, example: "alice@example.com" }
- *               password: { type: string, example: "secret123" }
- *     responses:
- *       200: { description: Logged in }
- *       401: { description: Invalid email or password }
- */
-router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body || {};
-    if (!email || !password) {
-      return res.status(400).json({ error: "email and password are required" });
-    }
-
-    const user = await User.findOne({ email });
-    if (!user || !user.passwordHash) {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
-
-    const ok = await bcrypt.compare(password, user.passwordHash);
-    if (!ok)
-      return res.status(401).json({ error: "Invalid email or password" });
-
-    req.session.userId = user._id.toString();
-    return res.json({ ok: true, user: pickUser(user) });
-  } catch (err) {
-    console.error("Login error:", err);
-    return res.status(500).json({ error: "Server error" });
-  }
-});
-
-/**
- * @openapi
- * /auth/me:
- *   get:
- *     summary: Get current logged-in user
- *     responses:
- *       200: { description: Current user (or null if not logged in) }
- */
-router.get("/me", async (req, res) => {
-  try {
-    const id = req.session.userId;
-    if (!id) return res.json({ user: null });
-    const user = await User.findById(id);
-    return res.json({ user: pickUser(user) });
-  } catch (err) {
-    console.error("Me error:", err);
-    return res.status(500).json({ error: "Server error" });
-  }
-});
-
-/**
- * @openapi
- * /auth/logout:
- *   post:
- *     summary: Logout current session
- *     responses:
- *       200: { description: Logged out }
- */
-router.post("/logout", (req, res) => {
-  try {
-    req.session.destroy(() => {
-      res.clearCookie("connect.sid");
-      return res.json({ ok: true });
+    // Return success response
+    res.status(200).json({
+      message: "Login successful",
+      user,
     });
-  } catch (err) {
-    console.error("Logout error:", err);
-    return res.status(500).json({ error: "Server error" });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
