@@ -1,57 +1,60 @@
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useState } from "react";
+import L from "leaflet";
+import { useEffect } from "react";
 
-const Map = () => {
-  const [position, setPosition] = useState(null);
+// This helper component lets you control the map imperatively
+const MapController = ({ selectedMemo }) => {
+  const map = useMap();
 
   useEffect(() => {
-    // ✅ Ask for user's geolocation permission
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          // ✅ If permission granted, use user's coordinates
-          const { latitude, longitude } = pos.coords;
-          console.log("✅ User location:", latitude, longitude);
-          setPosition([latitude, longitude]);
-        },
-        (error) => {
-          // ❌ If denied or failed, fallback to Sydney
-          console.warn("❌ Geolocation error:", error.message);
-          setPosition([-33.8688, 151.2093]); // Sydney, Australia
-        }
-      );
-    } else {
-      // ❌ If the browser does not support geolocation
-      console.warn("Geolocation not supported");
-      setPosition([-33.8688, 151.2093]); // Default: Sydney
+    if (selectedMemo) {
+      const [lon, lat] = selectedMemo.location.coordinates;
+      map.flyTo([lat, lon], 10, { duration: 1.5 }); // smooth animation
     }
-  }, []);
+  }, [selectedMemo, map]);
 
-  // 💡 Show loading state before position is set
-  if (!position) {
-    return (
-      <div className="flex items-center justify-center h-screen text-gray-600">
-        Getting your location...
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-full h-screen">
-      <MapContainer
-        center={position}
-        zoom={13}
-        className="w-full h-full rounded-lg shadow-lg"
-      >
-        {/* 🌍 Map tiles from OpenStreetMap */}
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-        />
-      </MapContainer>
-    </div>
-  );
+  return null;
 };
 
-export default Map;
+export default function Map({ memos, selectedMemo, setSelectedMemo }) {
+  const defaultCenter = memos.length
+    ? [memos[0].location.coordinates[1], memos[0].location.coordinates[0]]
+    : [-33.8688, 151.2093]; // Sydney fallback
+
+  return (
+    <MapContainer center={defaultCenter} zoom={3} className="w-full h-screen">
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+      />
+
+      {/* map controller to follow selectedMemo */}
+      <MapController selectedMemo={selectedMemo} />
+
+      {memos.map((memo) => {
+        const [lon, lat] = memo.location.coordinates;
+        return (
+          <Marker key={memo._id} position={[lat, lon]}>
+            <Popup>
+              <div className="text-sm text-gray-800">
+                <p>
+                  <strong>{memo.city}</strong>, {memo.country}
+                </p>
+                <p className="text-gray-500">
+                  {new Date(memo.createdAt).toLocaleString()}
+                </p>
+                <button
+                  className="mt-2 text-blue-600 underline hover:text-blue-800"
+                  onClick={() => setSelectedMemo(memo)}
+                >
+                  View memory →
+                </button>
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
+    </MapContainer>
+  );
+}

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 
 export default function AppLayout() {
   const [memos, setMemos] = useState([]);
+  const [selectedMemo, setSelectedMemo] = useState(null);
 
   useEffect(() => {
     fetch("http://localhost:3000/memos")
@@ -21,8 +22,16 @@ export default function AppLayout() {
 
   return (
     <div className="flex justify-between">
-      <LeftBar memos={memos} />
-      <Map memos={memos} />
+      <LeftBar
+        memos={memos}
+        selectedMemo={selectedMemo}
+        setSelectedMemo={setSelectedMemo}
+      />
+      <Map
+        memos={memos}
+        selectedMemo={selectedMemo}
+        setSelectedMemo={setSelectedMemo}
+      />
     </div>
   );
 }
