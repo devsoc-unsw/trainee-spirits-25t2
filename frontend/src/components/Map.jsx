@@ -1,29 +1,72 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
 import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 // This helper component lets you control the map imperatively
 const MapController = ({ selectedMemo }) => {
+  const [, setSearchParams] = useSearchParams();
+
   const map = useMap();
 
   useEffect(() => {
     if (selectedMemo) {
       const [lon, lat] = selectedMemo.location.coordinates;
       map.flyTo([lat, lon], 10, { duration: 1.5 }); // smooth animation
+      setSearchParams({ lat: lat.toFixed(6), lng: lon.toFixed(6) });
     }
-  }, [selectedMemo, map]);
+  }, [selectedMemo, setSearchParams, map]);
 
   return null;
 };
 
-export default function Map({ memos, selectedMemo, setSelectedMemo }) {
-  const defaultCenter = memos.length
-    ? [memos[0].location.coordinates[1], memos[0].location.coordinates[0]]
-    : [-33.8688, 151.2093]; // Sydney fallback
+// 🖱️ Component to handle map clicks
+const ClickHandler = ({ setClickedPoint, setSelectedMemo }) => {
+  const [, setSearchParams] = useSearchParams();
+  const map = useMapEvents({
+    click(e) {
+      const { lat, lng } = e.latlng;
+      console.log("📍 Clicked coordinates:", lat, lng);
+
+      // Move map center to the clicked point
+      map.setView([lat, lng], map.getZoom(), { animate: true });
+
+      setSearchParams({ lat: lat.toFixed(6), lng: lng.toFixed(6) });
+      setClickedPoint({ lat: lat.toFixed(6), lng: lng.toFixed(6) });
+      setSelectedMemo(null);
+    },
+  });
+
+  return null;
+};
+
+export default function Map({
+  memos,
+  selectedMemo,
+  setSelectedMemo,
+  setClickedPoint,
+}) {
+  const [searchParams] = useSearchParams();
+
+  const lat = parseFloat(searchParams.get("lat"));
+  const lng = parseFloat(searchParams.get("lng"));
+
+  const defaultCenter =
+    !isNaN(lat) && !isNaN(lng)
+      ? [lat, lng]
+      : memos.length > 0
+      ? [memos[0].location.coordinates[1], memos[0].location.coordinates[0]]
+      : [-33.8688, 151.2093];
 
   return (
-    <MapContainer center={defaultCenter} zoom={3} className="w-full h-screen">
+    <MapContainer center={defaultCenter} zoom={10} className="w-full h-screen">
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
@@ -31,6 +74,12 @@ export default function Map({ memos, selectedMemo, setSelectedMemo }) {
 
       {/* map controller to follow selectedMemo */}
       <MapController selectedMemo={selectedMemo} />
+
+      {/* 🖱️ handle map clicks */}
+      <ClickHandler
+        setClickedPoint={setClickedPoint}
+        setSelectedMemo={setSelectedMemo}
+      />
 
       {memos.map((memo) => {
         const [lon, lat] = memo.location.coordinates;
