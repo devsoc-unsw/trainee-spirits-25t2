@@ -1,4 +1,4 @@
-const Leftbar = () => {
+const LeftBar = () => {
   return (
     <div
       className="w-100 h-screen bg-blue-50
@@ -9,4 +9,4 @@ const Leftbar = () => {
   );
 };
 
-export default Leftbar;
+export default LeftBar;

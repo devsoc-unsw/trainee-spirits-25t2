@@ -1,9 +1,10 @@
 import Map from "../components/Map";
-import Leftbar from "../components/Leftbar";
+import LeftBar from "../components/LeftBar";
+
 export default function applayout() {
   return (
     <div className="flex justify-between">
-      <Leftbar />
+      <LeftBar />
       <Map />
     </div>
   );
