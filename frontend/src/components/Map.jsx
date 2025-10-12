@@ -1,18 +1,6 @@
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useState } from "react";
-import L from "leaflet";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
-
-const customIcon = L.icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png", // 🌎 Example: red location pin
-  iconSize: [35, 35], // size of the icon
-  iconAnchor: [17, 34], // point of the icon which corresponds to marker's location
-  popupAnchor: [0, -28], // point from which popup should open relative to iconAnchor
-  shadowUrl: markerShadow, // optional: keep shadow
-  shadowSize: [41, 41],
-  shadowAnchor: [13, 41],
-});
 
 const Map = () => {
   const [position, setPosition] = useState(null);
