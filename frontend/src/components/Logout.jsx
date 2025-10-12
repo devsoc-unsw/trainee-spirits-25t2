@@ -8,9 +8,9 @@ const Logout = () => {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth); 
+      await signOut(auth);
       console.log("✅ Logged out successfully");
-      navigate("/login"); 
+      navigate("/");
     } catch (error) {
       console.error("❌ Logout error:", error);
     }
