@@ -9,7 +9,6 @@ const swaggerSpec = require("./swagger");
 
 // Routers
 const authRoutes = require("./routes/auth");
-const userRoutes = require("./routes/users");
 const memoRoutes = require("./routes/memos");
 
 const app = express();
@@ -26,13 +25,11 @@ app.use(
 
 console.log("CORS origin:", process.env.CLIENT_URL);
 
-
 // Connect to MongoDB
 connectDB();
 
 // Parse JSON request bodies
 app.use(express.json());
-
 
 // Sessions (cookie-based)
 app.use(
@@ -55,7 +52,6 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use("/auth", authRoutes); // /auth/register, /auth/login, /auth/me, /auth/logout
-app.use("/users", userRoutes);
 app.use("/memos", memoRoutes);
 
 // Health check

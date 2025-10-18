@@ -1,7 +1,9 @@
 const express = require("express");
 const Memo = require("../models/Memo");
+const { verifyToken } = require("../middleware/auth");
 
 const router = express.Router();
+console.log("✅ memos.js loaded");
 
 /**
  * @openapi
@@ -48,13 +50,64 @@ const router = express.Router();
  *       200:
  *         description: Memo created successfully
  */
-router.post("/", async (req, res) => {
+router.post("/", verifyToken, async (req, res) => {
   try {
-    const memo = new Memo(req.body);
+    const userId = req.user.id;
+    const memoData = {
+      ...req.body,
+      user: userId, //
+    };
+    const memo = new Memo(memoData);
     await memo.save();
     res.json(memo);
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+});
+
+/**
+ * @openapi
+ * /memos/{id}:
+ *   delete:
+ *     summary: Delete a memo by ID
+ *     description: Delete a specific memo that belongs to the authenticated user.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: The ID of the memo to delete
+ *         schema:
+ *           type: string
+ *           example: 671255be8f40cc00cf7e68a4
+ *     responses:
+ *       200:
+ *         description: Memo deleted successfully
+ *       403:
+ *         description: Not authorized to delete this memo
+ *       404:
+ *         description: Memo not found
+ */
+router.delete("/:id", verifyToken, async (req, res) => {
+  try {
+    const memoId = req.params.id;
+    const userId = req.user.id; // from verifyToken middleware
+
+    const memo = await Memo.findById(memoId);
+    if (!memo) {
+      return res.status(404).json({ error: "Memo not found" });
+    }
+
+    if (memo.user.toString() !== userId) {
+      return res
+        .status(403)
+        .json({ error: "Not authorized to delete this memo" });
+    }
+
+    await memo.deleteOne();
+    res.json({ message: "✅ Memo deleted successfully", id: memoId });
+  } catch (err) {
+    console.error("❌ Error deleting memo:", err);
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -68,11 +121,14 @@ router.post("/", async (req, res) => {
  *       200:
  *         description: A list of memos
  */
-router.get("/", async (_req, res) => {
+router.get("/", verifyToken, async (req, res) => {
   try {
-    const memos = await Memo.find().populate("user");
+    const memos = await Memo.find({ user: req.user.id })
+      .populate("user", "name email avatar")
+      .sort({ createdAt: -1 });
     res.json(memos);
   } catch (err) {
+    console.error("❌ Error fetching memos:", err);
     res.status(500).json({ error: err.message });
   }
 });

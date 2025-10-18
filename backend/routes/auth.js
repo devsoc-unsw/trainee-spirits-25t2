@@ -101,6 +101,12 @@ router.post("/google", async (req, res) => {
       await user.save();
     }
 
+    const token = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
     // Return success response
     res.status(200).json({
       message: "Login successful",

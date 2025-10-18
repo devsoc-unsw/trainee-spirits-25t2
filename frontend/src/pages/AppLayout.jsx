@@ -8,17 +8,26 @@ export default function AppLayout() {
   const [loading, setLoading] = useState(true); // ✅ add loading state
   const [clickedPoint, setClickedPoint] = useState(null);
 
-  useEffect(() => {
-    fetch("http://localhost:3000/memos")
-      .then((res) => res.json())
-      .then((data) => {
-        setMemos(data);
-        setLoading(false); // ✅ stop loading when data ready
-      })
-      .catch((err) => {
-        console.error("❌ Fetch error:", err);
-        setLoading(false);
+  const fetchMemos = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return console.warn("No token, skip fetching");
+
+      const res = await fetch("http://localhost:3000/memos", {
+        headers: { Authorization: `Bearer ${token}` },
       });
+      if (!res.ok) throw new Error("Fetch failed " + res.status);
+      const data = await res.json();
+      setMemos(data);
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMemos();
   }, []);
 
   // ✅ While loading, show a centered loading screen
@@ -34,9 +43,10 @@ export default function AppLayout() {
       <LeftBar
         memos={memos}
         selectedMemo={selectedMemo}
-        setSelectedMemo={setSelectedMemo}
         clickedPoint={clickedPoint}
         setClickedPoint={setClickedPoint}
+        fetchMemos={fetchMemos}
+        setSelectedMemo={setSelectedMemo}
       />
       <Map
         memos={memos}

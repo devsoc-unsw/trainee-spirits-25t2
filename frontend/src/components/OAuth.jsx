@@ -25,6 +25,7 @@ const OAuth = () => {
       const data = await res.json();
       if (res.ok) {
         console.log(data);
+        localStorage.setItem("token", data.token);
         navigate("/");
       }
     } catch (error) {

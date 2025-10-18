@@ -53,6 +53,9 @@ export default function Map({
   setSelectedMemo,
   setClickedPoint,
 }) {
+  useEffect(() => {
+    console.log(selectedMemo);
+  }, [selectedMemo]);
   const [searchParams] = useSearchParams();
 
   const lat = parseFloat(searchParams.get("lat"));
