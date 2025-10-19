@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useMemos } from "../hooks/useMemo";
 async function handleClick(clickedPoint) {
   const BASE_URL = "https://api.bigdatacloud.net/data/reverse-geocode-client";
 
@@ -18,19 +19,17 @@ async function handleClick(clickedPoint) {
   }
 }
 
-const LeftBar = ({
-  memos,
+const Leftbar = ({
   selectedMemo,
   setSelectedMemo,
   clickedPoint,
   setClickedPoint,
-  fetchMemos,
 }) => {
   const [location, setLocation] = useState({ city: "", country: "" });
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
-  const [loading, setLoading] = useState(false);
   const [images, setImages] = useState([]);
+  const { fetchMemos, memos, loading, setLoading, handleDelete } = useMemos();
   useEffect(() => {
     setImages([]);
   }, [clickedPoint, selectedMemo]);
@@ -104,25 +103,6 @@ const LeftBar = ({
     }
   };
 
-  const handleDelete = async (id) => {
-    try {
-      console.log("Deleting:", `http://localhost:3000/memos/${id}`);
-      const res = await fetch(`http://localhost:3000/memos/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) throw new Error("Delete failed");
-      const data = await res.json();
-      console.log("✅ Deleted:", data);
-      alert("Memo deleted successfully");
-      fetchMemos();
-    } catch (err) {
-      console.error("❌ Error creating memo:", err);
-      alert("Failed to delete memo.");
-    }
-  };
   if (!selectedMemo && !clickedPoint) {
     return (
       <div className="w-[320px] h-screen bg-blue-50 p-5 overflow-y-auto">
@@ -258,4 +238,4 @@ const LeftBar = ({
   }
 };
 
-export default LeftBar;
+export default Leftbar;

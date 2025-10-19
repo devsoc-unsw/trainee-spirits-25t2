@@ -9,6 +9,7 @@ import {
 import "leaflet/dist/leaflet.css";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useMemos } from "../hooks/useMemo.js";
 
 // This helper component lets you control the map imperatively
 const MapController = ({ selectedMemo }) => {
@@ -48,11 +49,11 @@ const ClickHandler = ({ setClickedPoint, setSelectedMemo }) => {
 };
 
 export default function Map({
-  memos,
   selectedMemo,
   setSelectedMemo,
   setClickedPoint,
 }) {
+  const { memos } = useMemos();
   useEffect(() => {
     console.log(selectedMemo);
   }, [selectedMemo]);
