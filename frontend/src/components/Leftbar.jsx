@@ -30,6 +30,28 @@ const LeftBar = ({
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
+  const [images, setImages] = useState([]);
+  useEffect(() => {
+    setImages([]);
+  }, [clickedPoint, selectedMemo]);
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      console.log("✅ Base64 Data URL:", result);
+      event.target.value = "";
+      setImages([...images, result]);
+    };
+    reader.onerror = (error) => {
+      console.error("❌ FileReader error:", error);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
   const token = localStorage.getItem("token");
   useEffect(() => {
     const fetchLocation = async () => {
@@ -60,6 +82,7 @@ const LeftBar = ({
           location: {
             coordinates: [clickedPoint.lng, clickedPoint.lat],
           },
+          photos: images,
         }),
       });
 
@@ -160,13 +183,10 @@ const LeftBar = ({
           <strong>📝 Notes:</strong> {selectedMemo.notes}
         </p>
 
-        {selectedMemo.photos?.length > 0 && (
-          <img
-            src={selectedMemo.photos[0]}
-            alt={selectedMemo.title}
-            className="rounded-lg shadow-md"
-          />
-        )}
+        {selectedMemo.photos?.length > 0 &&
+          selectedMemo.photos.map((photo) => {
+            return <img src={photo} className="rounded-lg shadow-md" />;
+          })}
         <button
           onClick={() => {
             handleDelete(selectedMemo._id);
@@ -211,11 +231,19 @@ const LeftBar = ({
             value={location.country}
             className="w-full p-2 border rounded-md"
           />
+
           <textarea
             placeholder="Notes..."
             onChange={(e) => setNotes(e.target.value)}
             className="w-full p-2 border rounded-md h-24"
           ></textarea>
+          <input type="file" onChange={handleFileChange} />
+          {images &&
+            images.map((image) => (
+              <div>
+                <img src={image} alt="preview" style={{ maxWidth: "300px" }} />
+              </div>
+            ))}
 
           <button
             type="submit"
