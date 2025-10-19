@@ -42,13 +42,65 @@ export const MemosProvider = ({ children }) => {
       alert("Failed to delete memo.");
     }
   };
+
+  const createMemo = async ({
+    title,
+    notes,
+    city,
+    country,
+    lng,
+    lat,
+    photos,
+  }) => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/memos`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // ensure token is defined outside
+        },
+        body: JSON.stringify({
+          title,
+          notes,
+          city,
+          country,
+          location: {
+            type: "Point",
+            coordinates: [lng, lat],
+          },
+          photos, // already from props
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`❌ Failed to create memo: ${res.status}`);
+      }
+
+      const data = await res.json();
+      console.log("✅ Memo created successfully:", data);
+      return data;
+    } catch (error) {
+      console.error("⚠️ Error creating memo:", error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
+    // Fetch memos when provider mounts
     fetchMemos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <MemosContext.Provider
-      value={{ memos, loading, fetchMemos, setLoading, handleDelete }}
+      value={{
+        memos,
+        loading,
+        fetchMemos,
+        setLoading,
+        handleDelete,
+        createMemo,
+      }}
     >
       {children}
     </MemosContext.Provider>

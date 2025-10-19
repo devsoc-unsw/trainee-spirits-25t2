@@ -24,9 +24,9 @@ const OAuth = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        console.log(data);
+        console.log("googleoath", data);
         localStorage.setItem("token", data.token);
-        navigate("/");
+        navigate("/app");
       }
     } catch (error) {
       console.error(error);
