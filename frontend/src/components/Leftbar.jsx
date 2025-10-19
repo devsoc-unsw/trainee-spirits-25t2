@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMemos } from "../hooks/useMemo";
+
 async function handleClick(clickedPoint) {
   const BASE_URL = "https://api.bigdatacloud.net/data/reverse-geocode-client";
 

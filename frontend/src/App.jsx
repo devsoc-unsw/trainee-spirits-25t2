@@ -12,17 +12,13 @@ function NotFound() {
 
 function App() {
   return (
-    <div>
-      <Navbar />
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/app" element={<AppLayout />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </div>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/app" element={<AppLayout />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 

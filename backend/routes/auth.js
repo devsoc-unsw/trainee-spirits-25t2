@@ -1,4 +1,5 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const router = express.Router();
@@ -85,7 +86,8 @@ const router = express.Router();
 router.post("/google", async (req, res) => {
   try {
     // Extract user info from request body
-    const { name, email, avatar } = req.body;
+    const { name, email, avatar, googlePhotoUrl } = req.body;
+    const avatarUrl = avatar || googlePhotoUrl || undefined;
 
     // Email is required (Google always returns it)
     if (!email) {
@@ -97,7 +99,7 @@ router.post("/google", async (req, res) => {
 
     // If not found, create a new one
     if (!user) {
-      user = new User({ name, email, avatar });
+      user = new User({ name, email, avatar: avatarUrl });
       await user.save();
     }
 
@@ -107,10 +109,11 @@ router.post("/google", async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    // Return success response
+    // Return success response including token (frontend expects data.token)
     res.status(200).json({
       message: "Login successful",
       user,
+      token,
     });
   } catch (error) {
     console.error("Login error:", error);

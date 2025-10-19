@@ -2,6 +2,7 @@ import { useState } from "react";
 import Map from "../components/Map";
 import Leftbar from "../components/Leftbar";
 import { useMemos } from "../hooks/useMemo";
+import UserMenu from "../components/UserMenu";
 
 export default function AppLayout() {
   const [selectedMemo, setSelectedMemo] = useState(null);
@@ -19,6 +20,8 @@ export default function AppLayout() {
   //  When data is ready, render the actual layout
   return (
     <div className="flex h-screen">
+      <UserMenu position="fixed top-4 right-6" />
+
       <Leftbar
         selectedMemo={selectedMemo}
         clickedPoint={clickedPoint}
