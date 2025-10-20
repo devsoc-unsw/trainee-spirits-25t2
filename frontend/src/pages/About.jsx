@@ -1,38 +1,43 @@
 import Navbar from "../components/Navbar";
 import { FaReact, FaGoogle, FaNodeJs } from "react-icons/fa";
 import { SiExpress, SiMongodb, SiLeaflet } from "react-icons/si";
-
+import JohnnyAvatar from "../assets/avatars/Johnny.jpg";
+import RyanAvatar from "../assets/avatars/Ryan.jpg";
+import KohtarohAvatar from "../assets/avatars/kohtaroh.jpg";
+import JonathanAvatar from "../assets/avatars/jonathan.png";
+import RishabhAvatar from "../assets/avatars/rishabh.jpg";
+import React from "react";
 export default function About() {
   const team = [
     {
-      name: "Alice Wang",
-      role: "Frontend Engineer",
-      desc: "Specializes in building intuitive and responsive UI with React and Tailwind CSS.",
-      avatar: "https://i.pravatar.cc/120?img=1",
+      name: "Johnny\nZhou",
+      role: "Training Lead",
+      desc: "Full stack developer",
+      avatar: JohnnyAvatar,
     },
     {
-      name: "Bob Li",
-      role: "Backend Engineer",
-      desc: "Focuses on developing robust APIs and optimizing server performance with Node.js and Express.",
-      avatar: "https://i.pravatar.cc/120?img=2",
+      name: "Ryan\nTan",
+      role: "Training Lead",
+      desc: "Full stack developer",
+      avatar: RyanAvatar,
     },
     {
-      name: "Carol Chen",
-      role: "Full-Stack Engineer",
-      desc: "Bridges the frontend and backend, ensuring seamless data flow and integration.",
-      avatar: "https://i.pravatar.cc/120?img=3",
+      name: "Kohtaroh\nYamanishi",
+      role: "Trainee",
+      desc: "Frontend developer",
+      avatar: KohtarohAvatar,
     },
     {
-      name: "David Zhang",
-      role: "UI/UX Designer",
-      desc: "Passionate about creating beautiful and accessible user experiences.",
-      avatar: "https://i.pravatar.cc/120?img=4",
+      name: "Jonathan\nBT",
+      role: "Trainee",
+      desc: "Frontend developer",
+      avatar: JonathanAvatar,
     },
     {
-      name: "Emma Zhou",
-      role: "Project Manager",
-      desc: "Coordinates the team, manages milestones, and ensures smooth project delivery.",
-      avatar: "https://i.pravatar.cc/120?img=5",
+      name: "Rishabh\nAnand",
+      role: "Trainee",
+      desc: "Backend developer",
+      avatar: RishabhAvatar,
     },
   ];
 
@@ -70,10 +75,17 @@ export default function About() {
                 <img
                   src={member.avatar}
                   alt={member.name}
-                  className="w-24 h-24 rounded-full object-cover mb-4 ring-2 ring-amber-400"
+                  className="w-40 h-40 rounded-full object-cover mb-4 ring-2 ring-amber-400"
                 />
                 <h3 className="text-lg font-semibold text-gray-800">
-                  {member.name}
+                  <p>
+                    {member.name.split("\n").map((line, i) => (
+                      <React.Fragment key={i}>
+                        {line}
+                        <br />
+                      </React.Fragment>
+                    ))}
+                  </p>
                 </h3>
                 <p className="text-sm text-amber-600 font-medium">
                   {member.role}

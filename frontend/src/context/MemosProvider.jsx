@@ -5,11 +5,15 @@ const MemosContext = createContext();
 export const MemosProvider = ({ children }) => {
   const [memos, setMemos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem("token");
 
   const fetchMemos = async () => {
     try {
-      if (!token) return console.warn("No token, skip fetching");
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.warn("No token, skip fetching");
+        setLoading(false);
+        return;
+      }
 
       const res = await fetch(`${import.meta.env.VITE_API_URL}/memos`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -25,6 +29,7 @@ export const MemosProvider = ({ children }) => {
   };
   const handleDelete = async (id) => {
     try {
+      const token = localStorage.getItem("token");
       console.log("Deleting:", `${import.meta.env.VITE_API_URL}/memos/${id}`);
       const res = await fetch(`${import.meta.env.VITE_API_URL}/memos/${id}`, {
         method: "DELETE",
@@ -53,11 +58,12 @@ export const MemosProvider = ({ children }) => {
     photos,
   }) => {
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(`${import.meta.env.VITE_API_URL}/memos`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // ensure token is defined outside
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           title,
@@ -68,7 +74,7 @@ export const MemosProvider = ({ children }) => {
             type: "Point",
             coordinates: [lng, lat],
           },
-          photos, // already from props
+          photos,
         }),
       });
 
@@ -88,7 +94,6 @@ export const MemosProvider = ({ children }) => {
   useEffect(() => {
     // Fetch memos when provider mounts
     fetchMemos();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
