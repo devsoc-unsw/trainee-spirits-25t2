@@ -11,7 +11,7 @@ export default function Login() {
   const navigate = useNavigate();
   useEffect(() => {
     if (!loading && user) {
-      navigate("/", { replace: true });
+      navigate("/app", { replace: true });
     }
   }, [user, loading, navigate]);
 

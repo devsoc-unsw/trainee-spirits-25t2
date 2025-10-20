@@ -8,11 +8,11 @@ import { MemosProvider } from "./context/MemosProvider.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-      <MemosProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <MemosProvider>
           <App />
-        </AuthProvider>
-      </MemosProvider>
+        </MemosProvider>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>
 );

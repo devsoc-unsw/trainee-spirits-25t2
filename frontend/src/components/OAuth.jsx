@@ -1,4 +1,9 @@
-import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  getAuth,
+  signInWithPopup,
+  onAuthStateChanged,
+} from "firebase/auth";
 import { app } from "../firebase";
 import { useNavigate } from "react-router-dom";
 
@@ -26,6 +31,16 @@ const OAuth = () => {
       if (res.ok) {
         console.log("googleoath", data);
         localStorage.setItem("token", data.token);
+        const token = localStorage.getItem("token");
+        console.log(token);
+        // trigger memos refresh but don't await it to avoid delaying navigation
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+          if (currentUser) {
+            console.log("🔥 Firebase user ready:", currentUser.email);
+            unsubscribe();
+            navigate("/app");
+          }
+        });
         navigate("/app");
       }
     } catch (error) {
